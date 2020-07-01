@@ -20,7 +20,7 @@ python Map_Local_Temperature.py -t 12
 
 Precipitation Maps [ Week 3 ]
 ==
-To generate temperature maps for week 3, use the following command:
+To generate precipitation maps for week 3, use the following command:
 
 ```
 python [Map File] -t [hours]
