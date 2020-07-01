@@ -1,7 +1,7 @@
 # NickelBlock Internship
 All the code for the NickelBlock internship.
 
-Temperature Maps
+Temperature Maps [ Week 2 ]
 ==
 To generate temperature maps for week 2, use the following command:
 
@@ -18,7 +18,7 @@ Example that generates local temperature map 12 hours from now:
 python Map_Local_Temperature.py -t 12
 ```
 
-Precipitation Maps
+Precipitation Maps [ Week 3 ]
 ==
 To generate temperature maps for week 3, use the following command:
 
