@@ -17,3 +17,17 @@ Example that generates local temperature map 12 hours from now:
 ```
 python Map_Local_Temperature.py -t 12
 ```
+
+Precipitation Maps
+==
+To generate temperature maps for week 3, use the following command:
+
+```
+python [Map File] -t [hours]
+```
+
+Example that generates local precipitation rate map 12 hours from now:
+
+```
+python Map_Local_Precipitation.py -t 12
+```
