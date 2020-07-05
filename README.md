@@ -31,3 +31,17 @@ Example that generates local precipitation rate map 12 hours from now:
 ```
 python Map_Local_Precipitation.py -t 12
 ```
+
+
+Daily Highs/Lows Percent Chance of Rain [ Week 4 ]
+==
+To run the webscraper, use the following command inside 'spider' folder:
+
+```
+scrapy crawl DailyHighsLowsPerChanceOfRain
+```
+
+The datasets should all be downloaded in the output folder, ready to be processed.
+
+Note: Sometimes the command can fail, due to missing datasets or otherwise. If this happens, wait a few mins to an hour to re-run.
+These issues are being worked on, and fail safes are present in the code.
