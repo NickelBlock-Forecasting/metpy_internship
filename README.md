@@ -33,7 +33,7 @@ python Map_Local_Precipitation.py -t 12
 ```
 
 
-Daily Highs/Lows Percent Chance of Rain [ Week 4 ]
+Daily Highs/Lows Percent Chance of Rain [ Week 3 ]
 ==
 To run the webscraper, use the following command inside 'spider' folder:
 
