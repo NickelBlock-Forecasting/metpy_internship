@@ -84,7 +84,7 @@ class DailyHighsLowsPerChanceOfRain(scrapy.Spider):
             download_links.append(dl_link)
 
         # Should be 10 items for 10 days. If it is not 10 items, days are missing.
-        if len(download_links) == 10:ls
+        if len(download_links) == 10:
             for d in download_links:
                 print(d)
             self.download_data(download_links)
