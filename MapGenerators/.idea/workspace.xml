@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="32816694-7fd5-4605-b212-71fd7f8b98f9" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/Week1_veryWide_local_regional_tropical/county_data/countyl010g.dbf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Week1_veryWide_local_regional_tropical/county_data/countyl010g.prj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Week1_veryWide_local_regional_tropical/county_data/countyl010g.sbn" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Week1_veryWide_local_regional_tropical/county_data/countyl010g.sbx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Week1_veryWide_local_regional_tropical/county_data/countyl010g.shp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Week1_veryWide_local_regional_tropical/county_data/countyl010g.shp.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Week1_veryWide_local_regional_tropical/county_data/countyl010g.shx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Week1_veryWide_local_regional_tropical/county_data/countyl010g.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Week1_veryWide_local_regional_tropical/map_local.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Week1_veryWide_local_regional_tropical/map_regional.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Week1_veryWide_local_regional_tropical/map_tropical.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Week1_veryWide_local_regional_tropical/map_very_wide.py" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectId" id="1dFccosbLmKfTR0PW97OKZD9Hoq" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="TERMINAL_CUSTOM_COMMANDS_GOT_IT" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/Week2" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Week2_Temperature_Maps/county_data" />
+      <recent name="$PROJECT_DIR$/Week2_Temperature_Maps/output" />
+      <recent name="$PROJECT_DIR$/Week3/webpage_data_scraper/MapPlot" />
+      <recent name="$PROJECT_DIR$/Week3/webpage_data_scraper/Daily_HighsLows_PercentChanceOfRain/Daily_HighsLows_PercentChanceOfRain/spiders/MapPlotting" />
+      <recent name="$PROJECT_DIR$/Week3" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Week2" />
+    </key>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="32816694-7fd5-4605-b212-71fd7f8b98f9" name="Default Changelist" comment="" />
+      <created>1592024363174</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1592024363174</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="252" y="209" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1592495851130">
+      <screen x="0" y="0" width="1280" height="800" />
+    </state>
+    <state x="252" y="209" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1280.800@0.0.1280.800" timestamp="1592495851130" />
+    <state x="932" y="270" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1592160098934">
+      <screen x="0" y="23" width="1920" height="986" />
+    </state>
+    <state x="932" y="270" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/-1280.189.1280.777/0.23.1920.986/1920.-589.1080.1897@0.23.1920.986" timestamp="1592160098934" />
+    <state width="640" height="400" key="XDebugger.FullValuePopup" timestamp="1592625518340">
+      <screen x="0" y="0" width="1280" height="800" />
+    </state>
+    <state width="640" height="400" key="XDebugger.FullValuePopup/0.0.1280.800@0.0.1280.800" timestamp="1592625518340" />
+    <state x="659" y="126" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1593370263181">
+      <screen x="0" y="23" width="1920" height="986" />
+    </state>
+    <state x="659" y="126" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/-1280.189.1280.777/0.23.1920.986/1920.-589.1080.1897@0.23.1920.986" timestamp="1593370263181" />
+    <state x="1084" y="34" width="836" height="806" key="dock-window-1" timestamp="1593285358235">
+      <screen x="0" y="0" width="1920" height="1009" />
+    </state>
+    <state x="1084" y="34" width="836" height="806" key="dock-window-1/-1280.189.1280.777/0.0.1920.1009/1920.-589.1080.1897@0.0.1920.1009" timestamp="1593285358235" />
+    <state x="952" y="240" width="670" height="676" key="search.everywhere.popup" timestamp="1593991367868">
+      <screen x="0" y="23" width="1920" height="986" />
+    </state>
+    <state x="952" y="240" width="670" height="676" key="search.everywhere.popup/-1280.189.1280.777/0.23.1920.986/1920.-589.1080.1897@0.23.1920.986" timestamp="1593991367868" />
+  </component>
+</project>

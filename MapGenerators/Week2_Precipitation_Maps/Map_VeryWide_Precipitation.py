@@ -1,16 +1,15 @@
 from datetime import datetime, timedelta
 import argparse
 import os
-import shutil
 
 from netCDF4 import num2date
 from siphon.catalog import TDSCatalog
 
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-import cartopy.io.shapereader as shpreader
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
+from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 import numpy as np
 
 
@@ -22,8 +21,11 @@ class City:
         self.temp = temp
 
 
-def round_temps(x):
-    return round(x * 4) / 4
+def kg_per_msquared_to_inches(num):
+    result = ((num * 86400) / 24) * 0.0393701
+    if result >= 0.5:
+        result = 0.5
+    return result
 
 
 def main():
@@ -76,16 +78,35 @@ def main():
 
         new_orleans,
         baton_rouge,
+        shreveport,
 
         mobile,
+        montgomery,
         tuscaloosa,
+        huntsville,
+        dothan,
 
         memphis,
+        jackson_tenn,
+        clarksville,
+        knoxville,
+
+        atlanta,
+        macon,
 
         pensacola,
+        tallahassee,
+        jacksonville,
+
+        little_rock,
+        fort_smith,
+
+        augusta,
+
+        houston
     ]
 
-    for i in range(len(args.time)):
+    for t in args.time:
         # Next,  we construct a `TDSCatalog` instance pointing to our dataset of interest, in
         # this case TDS' "Best" virtual dataset for the GFS global 0.25 degree collection of
         # GRIB files. This will give us a good resolution for our map. This catalog contains a
@@ -100,10 +121,10 @@ def main():
         # We can then use the `ncss` object to create a new query object, which
         # facilitates asking for data from the server.
         query = ncss.query()
-        time = (datetime.utcnow() + timedelta(hours=args.time[i]))  # Time of data requested
+        time = (datetime.utcnow() + timedelta(hours=t))  # Time of data requested
         query.time(time)
         query.accept('netcdf4')
-        query.variables('Temperature_surface')
+        query.variables('Precipitation_rate_surface')
 
         # We construct a query asking for data corresponding to a latitude and longitude box where 43
         # lat is the northern extent, 35 lat is the southern extent, -111 long is the western extent
@@ -113,8 +134,9 @@ def main():
         # will return all surface temperatures for points in our bounding box for a single time,
         # nearest to that requested. Note the string representation of the query is a properly encoded
         # query string.
-        # Translate Set Extent --> -91.5, -86.5, 29.5, 33.5
-        query.lonlat_box(north=33.5, south=29.5, east=-86.5, west=-91.5)
+        #
+        # Translate Set Extent --> -97, -81, 28, 37
+        query.lonlat_box(north=37, south=28, east=-81, west=-97)
 
         # We now request data from the server using this query. The `NCSS` class handles parsing
         # this NetCDF data (using the `netCDF4` module). If we print out the variable names, we see
@@ -124,23 +146,25 @@ def main():
 
         # We'll pull out the useful variables for temperature, latitude, and longitude, and time
         # (which is the time, in hours since the forecast run).
-        temp_var = data.variables['Temperature_surface']
+        precipitation_var = data.variables['Precipitation_rate_surface']
 
         # Time variables can be renamed in GRIB collections. Best to just pull it out of the
         # coordinates attribute on temperature
-        time_name = temp_var.coordinates.split()[1]
+        time_name = precipitation_var.coordinates.split()[1]
         time_var = data.variables[time_name]
         lat_var = data.variables['lat']
         lon_var = data.variables['lon']
 
         # Now we make our data suitable for plotting.
         # Get the actual data values and remove any size 1 dimensions
-        temp_vals = temp_var[:].squeeze()
+        precipitation_vals = precipitation_var[:].squeeze()
         lat_vals = lat_var[:].squeeze()
         lon_vals = lon_var[:].squeeze()
 
-        # Convert temps to Fahrenheit from Kelvin
-        temp_vals = temp_vals * 1.8 - 459.67
+        # Convert all precipitation values from kg/m^2/s (kilograms per meter squared per second) to inches
+        for i in range(len(lat_vals)):
+            for k in range(len(lon_vals)):
+                precipitation_vals[i][k] = kg_per_msquared_to_inches(precipitation_vals[i][k])
 
         # Combine 1D latitude and longitudes into a 2D grid of locations
         lon_2d, lat_2d = np.meshgrid(lon_vals, lat_vals)
@@ -148,38 +172,41 @@ def main():
         # Now we can plot these up using matplotlib and cartopy.
         # Create the figure and set the frame
         fig = plt.figure(figsize=(10, 7))
-        ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
-        ax.set_extent([-91.5, -86.5, 29.5, 33.5], crs=ccrs.Geodetic())
+        ax = fig.add_subplot(1, 1, 1, projection=ccrs.Mercator())
+        ax.set_extent([-97, -81, 28, 37], crs=ccrs.Geodetic())
 
-        # Create all desired boundaries
+        # Add state boundaries to plot
         ax.add_feature(cfeature.STATES.with_scale('50m'), linewidth=0.5)
-        reader = shpreader.Reader('./county_data/countyl010g.shp')
-        counties = list(reader.geometries())
-        COUNTIES = cfeature.ShapelyFeature(counties, ccrs.PlateCarree())
-        ax.add_feature(COUNTIES, facecolor='none', edgecolor='black', linewidth=0.3)
+
+        # Create the custom color map for rain
+        colormap = ListedColormap(['white',
+                                   # Greens
+                                   '#e0f7d8', '#ccf7be', '#b8f4a4', '#9AD58A', '#a1d691', '#9ac48e', '#86bc77', '#72ab62', '#659f55',  '#81C16F', '#5c914d', '#508641', '#48793b', '#396a2d', '#315d27', '#245817', '#1c4711',
+                                   'yellow',
+                                   # Oranges
+                                   '#ffea5d', '#dddf32', '#dfcc4b',  '#DBC634', 'orange'])
+
 
         # Contour temperature at each lat/long
-        cf = ax.contourf(lon_2d, lat_2d, temp_vals, 50, extend='both', transform=ccrs.PlateCarree(),
-                         cmap='coolwarm')
+        cf = ax.contourf(lon_2d, lat_2d, precipitation_vals,
+                         levels=[0.01, 0.02, 0.03, 0.04, 0.05, 0.075, 0.1, 0.125, 0.150, 0.175, 0.2, 0.225, 0.250, 0.275
+                             , 0.3, 0.325, 0.350, 0.375, 0.4, 0.425, 0.450, 0.475, 0.5], extend='both',
+                         transform=ccrs.PlateCarree(),
+                         cmap=colormap)
 
         # Plot a colorbar to show temperature and reduce the size of it
-        plt.colorbar(cf, ax=ax, fraction=0.032)
+        plt.colorbar(cf, ax=ax, cmap=colormap, fraction=0.032,
+                     ticks=[0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5])
 
         # Plot all the cities
         for city in cities:
-            for lat in range(len(lat_vals)):
-                for lon in range(len(lon_vals)):
-                    if round_temps(city.lat) == lat_vals[lat] and round_temps(city.lon) == (lon_vals[lon] - 360):
-                        ax.text(city.lon + 0.02, city.lat - 0.10, int(round(temp_vals[lat][lon])), fontsize='10',
-                                fontweight='bold',
-                                transform=ccrs.PlateCarree())
             ax.plot(city.lon, city.lat, 'ro', zorder=9, markersize=1.90, transform=ccrs.Geodetic())
-            ax.text(city.lon - 0.2, city.lat + 0.03, city.city_name, fontsize='small', fontweight='bold',
+            ax.text(city.lon - 0.5, city.lat + 0.09, city.city_name, fontsize='small', fontweight='bold',
                     transform=ccrs.PlateCarree())
 
         # Make a title with the time value
         time = str(time)[:-7]
-        ax.set_title('Temperature forecast (\u00b0F) for ' + time + ' UTC',
+        ax.set_title('Precipitation Rate Forecast (inches) for ' + time + ' UTC',
                      fontsize=12, loc='left')
 
         # Company copyright on the bottom right corner
@@ -191,14 +218,13 @@ def main():
         ax.add_artist(data_model)
         ax.add_artist(text)
 
-        plt.savefig('Local_Temperature_Hour_{}.png'.format(args.time[i]))
-        shutil.move(os.getcwd() + '/Local_Temperature_Hour_{}.png'.format(args.time[i]),
-                    os.getcwd() + '/output/Local_Temperature_Hour_{}.png'.format(args.time[i]))
+        plt.savefig('VeryWide_Precipitation_Hour_{}.png'.format(t))
 
 
 def make_output_directory():
     if not os.path.exists('output'):
         os.mkdir('output')
+    os.chdir('output')
 
 
 if __name__ == '__main__':
