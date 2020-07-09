@@ -1,11 +1,9 @@
 import os
-import re
 import scrapy
 import urllib.request
 
 
 class DailyHighsLowsPerChanceOfRain(scrapy.Spider):
-
     name = "DailyHighsLowsPerChanceOfRain"
 
     def start_requests(self):
@@ -17,33 +15,48 @@ class DailyHighsLowsPerChanceOfRain(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse, cb_kwargs={'start_url': start_urls[0]})
 
     def parse(self, response, start_url):
-        # Find all links,  grab the latest link, update the url
+        # Find all links
         links = response.css('pre a::text').getall()
-        latest_link = links[-1]
-        url = start_url + latest_link
 
-        yield scrapy.Request(url, callback=self.next_page, cb_kwargs={'url': url})
+        today = links[2]
+        yesterday = links[1]
 
-    def next_page(self, response, url):
+        # If the 12 UTC forecast hour is available for today, use it
+        # Else if 12 UTC hour is available yesterday, use it instead
+        if scrapy.Request(start_url + today, callback=self.check_for_data, cb_kwargs={'url': start_url + today}):
+            url = start_url + today
+            yield scrapy.Request(url, callback=self.next_page,
+                                 cb_kwargs={'url': url, 'hour': '12/', 'day': 'today'})
+        elif scrapy.Request(start_url + yesterday, callback=self.check_for_data, cb_kwargs={'url': start_url + yesterday}):
+            url = start_url + yesterday
+            yield scrapy.Request(url, callback=self.next_page,
+                                 cb_kwargs={'url': url, 'hour': '12/', 'day': 'yesterday'})
+
+    def check_for_data(self, response, url):
+        links = response.css('pre a::text').getall()
+        if '12/' not in links:
+            return False
+        elif '12/' in links:
+            return True
+
+    def next_page(self, response, url, hour, day):
         yield dict(
-            url=url
+            url=url,
+            hour=hour,
+            day=day
         )
         # Find all links,  grab the latest link, update the url
-        links = response.css('pre a::text').getall()
-
-        # If the latest day does NOT have a 'grib2/' path, grab the previous day
+        # links = response.css('pre a::text').getall()
         try:
-            latest_link = links[-1]
-            url = url + latest_link + 'grib2/'
-            yield scrapy.Request(url, callback=self.get_download_links, cb_kwargs={'url': url})
+            url = url + hour + 'grib2/'
+            yield scrapy.Request(url, callback=self.get_download_links, cb_kwargs={'url': url, 'day': day})
         except:
-            latest_link = links[-2]
-            url = url + latest_link + 'grib2/'
-            yield scrapy.Request(url, callback=self.get_download_links, cb_kwargs={'url': url})
+            print('Error finding grib2/ link. Try re-running the script in a few minutes.')
 
-    def get_download_links(self, response, url):
+    def get_download_links(self, response, url, day):
         yield dict(
-            url=url
+            url=url,
+            day=day
         )
 
         '''
@@ -96,7 +109,7 @@ class DailyHighsLowsPerChanceOfRain(scrapy.Spider):
         self.make_output_dir()
         for i in range(len(urls)):
             print("Downloading file: ", urls[i])
-            urllib.request.urlretrieve(urls[i], os.getcwd() + '/Day_{}_data.grb2'.format(i+1))
+            urllib.request.urlretrieve(urls[i], os.getcwd() + '/Day_{}_data.grb2'.format(i + 1))
 
     def make_output_dir(self):
         if not os.path.exists('output'):
