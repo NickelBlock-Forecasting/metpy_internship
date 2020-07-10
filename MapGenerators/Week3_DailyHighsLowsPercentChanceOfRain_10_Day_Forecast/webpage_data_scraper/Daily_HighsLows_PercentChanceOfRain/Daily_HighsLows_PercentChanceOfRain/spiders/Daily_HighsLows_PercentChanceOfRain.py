@@ -11,28 +11,21 @@ class DailyHighsLowsPerChanceOfRain(scrapy.Spider):
             'https://nomads.ncep.noaa.gov/pub/data/nccf/com/blend/prod/',
         ]
 
-        for url in start_urls:
-            yield scrapy.Request(url=url, callback=self.parse, cb_kwargs={'start_url': start_urls[0]})
+        yield scrapy.Request(start_urls[0], callback=self.parse, cb_kwargs={'start_url': start_urls[0]})
 
     def parse(self, response, start_url):
         # Find all links
         links = response.css('pre a::text').getall()
-
-        today = links[2]
         yesterday = links[1]
+        url = start_url + yesterday
 
-        # If the 12 UTC forecast hour is available for today, use it
-        # Else if 12 UTC hour is available yesterday, use it instead
-        if scrapy.Request(start_url + today, callback=self.check_for_data, cb_kwargs={'url': start_url + today}):
-            url = start_url + today
-            yield scrapy.Request(url, callback=self.next_page,
-                                 cb_kwargs={'url': url, 'hour': '12/', 'day': 'today'})
-        elif scrapy.Request(start_url + yesterday, callback=self.check_for_data, cb_kwargs={'url': start_url + yesterday}):
-            url = start_url + yesterday
+        if scrapy.Request(url, callback=self.check_for_data):
             yield scrapy.Request(url, callback=self.next_page,
                                  cb_kwargs={'url': url, 'hour': '12/', 'day': 'yesterday'})
+        else:
+            print('Forecast hour 12 UTC is missing.')
 
-    def check_for_data(self, response, url):
+    def check_for_data(self, response):
         links = response.css('pre a::text').getall()
         if '12/' not in links:
             return False
@@ -63,21 +56,22 @@ class DailyHighsLowsPerChanceOfRain(scrapy.Spider):
             The way the forecast hours are processes is the following. The lists are backwards for each day.
             When looping through, first we want to grab the exact hour # for each day (i.e. 24, 48, 72, 96, etc.),
             but sometimes that exact hour is not in the data. So, we try to find -1 the hour # (i.e. 23, 47, 71, etc.)
-            instead. If we can't find that hour # as well, we try the hour # +1 (i.e. 25, 49, 73, etc.), 
+            instead. If we can't find that hour # as well, we try the hour # +1 (i.e. 25, 49, 73, etc.),
             and keep adding 1 until we hit the hour count. It isn't perfect, but it catches the majority of
             behaviors from the webpage that has missing data hours.
         '''
         forecast_hours = {
-            'Day1': ['f028.co', 'f027.co', 'f026.co', 'f025.co', 'f023.co', 'f024.co'],
-            'Day2': ['f052.co', 'f051.co', 'f050.co', 'f049.co', 'f047.co', 'f048.co'],
-            'Day3': ['f076.co', 'f075.co', 'f074.co', 'f073.co', 'f071.co', 'f072.co'],
-            'Day4': ['f100.co', 'f099.co', 'f098.co', 'f097.co', 'f095.co', 'f096.co'],
-            'Day5': ['f124.co', 'f123.co', 'f122.co', 'f121.co', 'f119.co', 'f120.co'],
-            'Day6': ['f148.co', 'f147.co', 'f146.co', 'f145.co', 'f143.co', 'f144.co'],
-            'Day7': ['f172.co', 'f171.co', 'f170.co', 'f169.co', 'f167.co', 'f168.co'],
-            'Day8': ['f196.co', 'f195.co', 'f194.co', 'f193.co', 'f191.co', 'f192.co'],
-            'Day9': ['f220.co', 'f219.co', 'f218.co', 'f217.co', 'f215.co', 'f216.co'],
-            'Day10': ['f244.co', 'f243.co', 'f242.co', 'f241.co', 'f239.co', 'f240.co'],
+            'Day0': ['f028.co', 'f027.co', 'f026.co', 'f025.co', 'f023.co', 'f024.co'],
+            'Day1': ['f052.co', 'f051.co', 'f050.co', 'f049.co', 'f047.co', 'f048.co'],
+            'Day2': ['f076.co', 'f075.co', 'f074.co', 'f073.co', 'f071.co', 'f072.co'],
+            'Day3': ['f100.co', 'f099.co', 'f098.co', 'f097.co', 'f095.co', 'f096.co'],
+            'Day4': ['f124.co', 'f123.co', 'f122.co', 'f121.co', 'f119.co', 'f120.co'],
+            'Day5': ['f148.co', 'f147.co', 'f146.co', 'f145.co', 'f143.co', 'f144.co'],
+            'Day6': ['f172.co', 'f171.co', 'f170.co', 'f169.co', 'f167.co', 'f168.co'],
+            'Day7': ['f196.co', 'f195.co', 'f194.co', 'f193.co', 'f191.co', 'f192.co'],
+            'Day8': ['f220.co', 'f219.co', 'f218.co', 'f217.co', 'f215.co', 'f216.co'],
+            'Day9': ['f244.co', 'f243.co', 'f242.co', 'f241.co', 'f239.co', 'f240.co'],
+            'Day10': ['f258.co', 'f260.co', 'f261.co', 'f262.co', 'f263.co', 'f264.c0'],
         }
 
         # Grabs the text from all the links
@@ -97,8 +91,8 @@ class DailyHighsLowsPerChanceOfRain(scrapy.Spider):
                 continue
             download_links.append(dl_link)
 
-        # Should be 10 items for 10 days. If it is not 10 items, days are missing.
-        if len(download_links) == 10:
+        # Should be 11 items for 10 days, plus yesterday. If it is not 10 items, days are missing.
+        if len(download_links) == 11:
             for d in download_links:
                 print(d)
             self.download_data(download_links)
@@ -115,3 +109,4 @@ class DailyHighsLowsPerChanceOfRain(scrapy.Spider):
         if not os.path.exists('output'):
             os.mkdir('output')
         os.chdir('output')
+
