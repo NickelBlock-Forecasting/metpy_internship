@@ -103,7 +103,7 @@ class DailyHighsLowsPerChanceOfRain(scrapy.Spider):
         self.make_output_dir()
         for i in range(len(urls)):
             print("Downloading file: ", urls[i])
-            urllib.request.urlretrieve(urls[i], os.getcwd() + '/Day_{}_data.grb2'.format(i + 1))
+            urllib.request.urlretrieve(urls[i], os.getcwd() + '/Day_{}_data.grb2'.format(i))
 
     def make_output_dir(self):
         if not os.path.exists('output'):
