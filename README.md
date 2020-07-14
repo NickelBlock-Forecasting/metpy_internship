@@ -1,35 +1,32 @@
 # NickelBlock Internship
 All the code for the NickelBlock internship.
 
-Temperature Maps [ Week 2 ]
+Map Generators [ Week 2 ]
 ==
-To generate temperature maps for week 2, use the following command:
+To generate temperature or precipitation maps for week 2, use the following command:
 
 ```
-python [Map File] -t [hours]
+python [Map File] -m [Map Type] -t [hours]
 ```
 
-Where the `Map File` is the script to run, `-t` is the flag for time, and `hours` is how many hours from the time of 
-running the script you want to generate a temperature map.
+Where the `Map File` is the script to run, `-m` is the flag for map type, `-t` is the flag for time, and `hours` is how many hours from the time of running the script you want to generate the map.
 
-Example that generates local temperature map 12 hours from now:
+All Map Types include: `verywide` , `regional` , `local` , `tropical`
 
-```
-python Map_Local_Temperature.py -t 12
-```
-
-Precipitation Maps [ Week 2 ]
+Temperature
 ==
-To generate precipitation maps for week 2, use the following command:
+Example that generates a very wide temperature map 12 hours from now:
 
 ```
-python [Map File] -t [hours]
+python Temp_Map_Generator.py -m verywide -t 12
 ```
 
+Precipitation
+==
 Example that generates local precipitation rate map 12 hours from now:
 
 ```
-python Map_Local_Precipitation.py -t 12
+python Precip_Map_Generator.py -m local -t 12
 ```
 
 
