@@ -14,7 +14,7 @@ Where the `Map File` is the script to run, `-m` is the flag for map type, `-t` i
 All Map Types include: `verywide` , `regional` , `local` , `tropical`
 
 Temperature
-==
+--
 Example that generates a very wide temperature map 12 hours from now:
 
 ```
@@ -22,7 +22,7 @@ python Temp_Map_Generator.py -m verywide -t 12
 ```
 
 Precipitation
-==
+--
 Example that generates local precipitation rate map 12 hours from now:
 
 ```
