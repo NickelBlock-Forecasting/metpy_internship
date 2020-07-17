@@ -36,6 +36,7 @@ class Tropical:
 '''
 class MapInfo:
     def __init__(self):
+        # - MISSISSIPPI
         self.hattiesburg = City('Hattiesburg', 31.3271, -89.2903)
         self.jackson = City('Jackson', 32.2988, -90.1848)
         self.tupelo = City('Tupelo', 34.2576, -88.7034)
