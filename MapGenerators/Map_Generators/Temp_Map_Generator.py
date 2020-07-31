@@ -96,8 +96,6 @@ def main():
         lat_vals = lat_var[:].squeeze()
         lon_vals = lon_var[:].squeeze()
 
-        print('Lat: ', lat_vals, ' Lon: ', lon_vals)
-
         # Convert temps to Fahrenheit from Kelvin
         temp_vals = temp_vals * 1.8 - 459.67
 
