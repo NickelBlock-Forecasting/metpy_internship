@@ -96,6 +96,8 @@ def main():
         lat_vals = lat_var[:].squeeze()
         lon_vals = lon_var[:].squeeze()
 
+        print('Lat: ', lat_vals, ' Lon: ', lon_vals)
+
         # Convert temps to Fahrenheit from Kelvin
         temp_vals = temp_vals * 1.8 - 459.67
 
@@ -142,7 +144,7 @@ def main():
                             ax.text(city.lon + 0.09, city.lat - 0.2, int(round(temp_vals[lat][lon])), fontsize='10',
                                     fontweight='bold',
                                     transform=ccrs.PlateCarree())
-                ax.plot(city.lon, city.lat, 'ro', zorder=9, markersize=1.90, transform=ccrs.Geodetic())
+                ax.plot(city.lon, city.lat, 'ro', zorder=9, markersize=2.00, transform=ccrs.Geodetic())
                 ax.text(city.lon - 0.5, city.lat + 0.09, city.city_name, fontsize='small', fontweight='bold',
                         transform=ccrs.PlateCarree())
 
