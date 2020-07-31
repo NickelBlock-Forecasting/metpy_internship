@@ -1,9 +1,9 @@
 # NickelBlock Internship
 All the code for the NickelBlock internship.
 
-Map Generators [ Week 2 ]
+Map Generators (Temperature, Precipitation, Daily High/Low/PercentChanceRain)
 ==
-To generate temperature or precipitation maps for week 2, use the following command:
+To generate temperature or precipitation maps navigate to the 'MapGenerators' folder and use the following command:
 
 ```
 python [Map File] -m [Map Type] -t [hours]
@@ -29,16 +29,18 @@ Example that generates local precipitation rate map 12 hours from now:
 python Precip_Map_Generator.py -m local -t 12
 ```
 
-
-Daily Highs/Lows Percent Chance of Rain [ Week 3 ]
-==
-To run the webscraper, use the following command inside 'spider' folder:
+Daily Highs / Lows / Percent Chance of Rain
+--
+To generate maps with daily highs/lows/percent chance of rain maps, navigate to the 'MapGenerators' folder, and use the following command:
 
 ```
-scrapy crawl DailyHighsLowsPerChanceOfRain
+python DailyHighsLowsPerChanceOfRain_Map_Generator.py -m [Map Type]
 ```
 
-The datasets should all be downloaded in the output folder, ready to be processed.
+The command should create and save maps for 5 days in advance, putting the maps in the output folder.
 
-Note: Sometimes the command can fail, due to missing datasets or otherwise. If this happens, wait a few mins to an hour to re-run.
-These issues are being worked on, and fail safes are present in the code.
+Example that generates regional daily H/L/PCoR maps:
+
+```
+python DailyHighsLowsPerChanceOfRain_Map_Generator.py -m regional
+```
