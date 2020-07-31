@@ -105,7 +105,6 @@ def main():
             for city in map_.cities:
                 for max, min, per_chance_rain in zip(max_temp_data, min_temp_data, percent_chance_rain_data):
                     if round(city.lat, 1) == round(max['lat'], 1) and round(city.lon, 1) == round(max['lon'], 1):
-                        print(city.city_name, ' hit')
                         ax.plot(city.lon, city.lat, 'ro', zorder=9, markersize=1.90, transform=ccrs.Geodetic())
                         # City Name
                         ax.text(city.lon - 0.60, city.lat + 0.07, city.city_name, fontsize='small', fontweight='bold',
