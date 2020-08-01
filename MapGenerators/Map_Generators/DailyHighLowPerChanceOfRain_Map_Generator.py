@@ -106,20 +106,26 @@ def main():
                 for max, min, per_chance_rain in zip(max_temp_data, min_temp_data, percent_chance_rain_data):
                     if round(city.lat, 1) == round(max['lat'], 1) and round(city.lon, 1) == round(max['lon'], 1):
                         ax.plot(city.lon, city.lat, 'ro', zorder=9, markersize=1.90, transform=ccrs.Geodetic())
+      
                         # City Name
-                        ax.text(city.lon - 0.60, city.lat + 0.07, city.city_name, fontsize='small', fontweight='bold',
-                                transform=ccrs.PlateCarree())
+                        if city.city_name == 'Pensacola' and map_.map_type == 'verywide':
+                            ax.text(city.lon - 0.20, city.lat + 0.07, city.city_name, fontsize='small',
+                                    fontweight='bold',
+                                    transform=ccrs.PlateCarree())
+                        else:
+                            ax.text(city.lon - 0.55, city.lat + 0.07, city.city_name, fontsize='small', fontweight='bold',
+                                    transform=ccrs.PlateCarree())
 
                         # City Min/Max Temperature
                         text = str(int(round(min['value'] * 1.8 - 459.67))) + ' / ' + str(int(round(max['value'] * 1.8 - 459.67)))
                         ax.text(city.lon - 0.4, city.lat - 0.24, text, fontsize='small',
-                                fontweight='normal',
+                                fontweight='bold',
                                 transform=ccrs.PlateCarree())
 
                         # City Percent Chance of Rain
                         text = str(int(round(per_chance_rain['value']))) + '%'
                         ax.text(city.lon - 0.2, city.lat - 0.47, text, fontsize='small',
-                                fontweight='normal',
+                                fontweight='bold',
                                 transform=ccrs.PlateCarree())
                         break
 
