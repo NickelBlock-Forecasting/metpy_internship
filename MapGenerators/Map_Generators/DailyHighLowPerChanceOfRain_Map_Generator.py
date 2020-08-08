@@ -12,13 +12,14 @@ import Map_Info as map_info
 
 
 def download_dataset():
-    os.system('cd .. && cd DailyHighsLowsPerChanceOfRain && cd DailyHighsLowsPerChanceOfRain && cd spiders && scrapy '
+    os.system('cd .. && cd DailyHighsLowsPerChanceOfRain_dataset_downloader && cd DailyHighsLowsPerChanceOfRain && cd spiders && scrapy '
               'crawl DailyHighLowPerChanceOfRain')
     return
 
 
 def main():
     download_dataset()
+    return
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--map', help='Which type of map to be generated.')
@@ -34,6 +35,7 @@ def main():
     # Open dataset and capture relevant info
     file = '../output/DHLPCoR_data.grb2'
     data = pygrib.open(file)
+
     max_temp = data.select(name='Maximum temperature')
     min_temp = data.select(name='Minimum temperature')
     per_chance_rain = data.select(name='Probability of 0.01 inch of precipitation (POP)')

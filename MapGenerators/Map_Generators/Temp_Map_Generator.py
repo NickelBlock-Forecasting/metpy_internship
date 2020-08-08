@@ -143,8 +143,14 @@ def main():
                                     fontweight='bold',
                                     transform=ccrs.PlateCarree())
                 ax.plot(city.lon, city.lat, 'ro', zorder=9, markersize=2.00, transform=ccrs.Geodetic())
-                ax.text(city.lon - 0.5, city.lat + 0.09, city.city_name, fontsize='small', fontweight='bold',
-                        transform=ccrs.PlateCarree())
+
+                if city.city_name == 'Pensacola' and temp_map.map_type == 'verywide':
+                    ax.text(city.lon - 0.20, city.lat + 0.07, city.city_name, fontsize='small',
+                            fontweight='bold',
+                            transform=ccrs.PlateCarree())
+                else:
+                    ax.text(city.lon - 0.5, city.lat + 0.09, city.city_name, fontsize='small', fontweight='bold',
+                            transform=ccrs.PlateCarree())
 
         # Make a title with the time value
         time = str(time)[:-7]

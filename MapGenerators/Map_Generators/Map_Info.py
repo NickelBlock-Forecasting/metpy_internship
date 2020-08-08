@@ -1,6 +1,6 @@
-'''
+"""
     All Maps Classes
-'''
+"""
 class VeryWide:
     def __init__(self):
         map_info = MapInfo()
@@ -31,9 +31,15 @@ class Tropical:
         self.NorthSouthEastWest = [40.5, 8.5, -15.5, -97.5]
 
 
-'''
+class Country:
+    def __init__(self):
+        self.map_type = 'country'
+        self.NorthSouthEastWest = [47, 20, -65, -130]
+
+
+"""
     All Maps information with all cities defined
-'''
+"""
 class MapInfo:
     def __init__(self):
         # - MISSISSIPPI
@@ -149,9 +155,9 @@ class MapInfo:
         return cities
 
 
-'''
+"""
     Class for defining cities to plot
-'''
+"""
 class City:
     def __init__(self, city_name, lat, lon, temp=None):
         self.city_name = city_name
