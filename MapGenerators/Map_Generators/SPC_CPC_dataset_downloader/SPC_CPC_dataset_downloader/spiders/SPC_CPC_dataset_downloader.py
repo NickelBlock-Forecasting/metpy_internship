@@ -16,7 +16,6 @@ class SPC_CPC_dataset_downloader(scrapy.Spider):
         yield scrapy.Request(start_urls[0], callback=self.parse, meta={'start_url': start_urls[0]})
         yield scrapy.Request(start_urls[1], callback=self.parse, meta={'start_url': start_urls[1]})
 
-
     def parse(self, response):
         start_url = response.meta['start_url']
         link = response.css('tr td a::attr(href)').get()
