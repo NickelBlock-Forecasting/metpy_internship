@@ -1,7 +1,7 @@
 # NickelBlock Internship
 All the code for the NickelBlock internship.
 
-Map Generators (Temperature, Precipitation, Daily High/Low/PercentChanceRain)
+Map Generators (Temperature, Precipitation, Daily High/Low/PercentChanceRain, CPC Outlook, SPC Outlook)
 ==
 To generate temperature or precipitation maps navigate to the 'MapGenerators' folder and use the following command:
 
@@ -43,4 +43,36 @@ Example that generates regional daily H/L/PCoR maps:
 
 ```
 python DailyHighsLowsPerChanceOfRain_Map_Generator.py -m regional
+```
+
+SPC Probabilistic Outlook
+==
+To generate SPC maps, navigate to the 'MapGenerators' folder, and use the following command:
+
+```
+python SPC_Map_Generator.py -m [Map Type]
+```
+
+The command will generate maps for all days present in the dataset, placing the map output in the output folder.
+
+Example that generates country SPC maps:
+
+```
+python SPC_Map_Generator.py -m country
+```
+
+CPC Probabilistic Outlook
+==
+To generate CPC maps, navigate to the 'MapGenerators' folder, and use the following command:
+
+```
+python CPC_Map_Generator.py -m [Map Type]
+```
+
+The command will generate maps for all days present in the dataset, placing the map output in the output folder.
+
+Example that generates country CPC maps:
+
+```
+python CPC_Map_Generator.py -m country
 ```
