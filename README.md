@@ -46,7 +46,7 @@ python DailyHighsLowsPerChanceOfRain_Map_Generator.py -m regional
 ```
 
 SPC Probabilistic Outlook
-==
+--
 To generate SPC maps, navigate to the 'MapGenerators' folder, and use the following command:
 
 ```
@@ -62,7 +62,7 @@ python SPC_Map_Generator.py -m country
 ```
 
 CPC Probabilistic Outlook
-==
+--
 To generate CPC maps, navigate to the 'MapGenerators' folder, and use the following command:
 
 ```
