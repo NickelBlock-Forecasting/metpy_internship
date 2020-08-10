@@ -8,8 +8,8 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import cartopy.io.shapereader as shpreader
 import matplotlib.pyplot as plt
+import matplotlib.image as img
 from matplotlib.offsetbox import AnchoredText
-from matplotlib.colors import ListedColormap
 import numpy as np
 
 import Map_Info as map_info
@@ -167,6 +167,7 @@ def main():
         ax.add_artist(text)
 
         plt.savefig('{}_Temperature_Hour_{}.png'.format(temp_map.map_type, t))
+
 
 
 def make_output_directory():

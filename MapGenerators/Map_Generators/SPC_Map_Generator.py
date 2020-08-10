@@ -7,7 +7,6 @@ import cartopy.io.shapereader as shpreader
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 import pygrib
-import numpy as np
 
 import Map_Info as map_info
 
@@ -19,7 +18,7 @@ def download_dataset():
 
 
 def main():
-    # download_dataset()
+    download_dataset()
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--map', help='Which type of map to be generated.')
@@ -31,6 +30,8 @@ def main():
         map_ = map_info.Regional()
     elif args.map == 'local':
         map_ = map_info.Local()
+    elif args.map == 'tropical':
+        map_ = map_info.Tropical()
     elif args.map == 'country':
         map_ = map_info.Country()
 
@@ -69,16 +70,16 @@ def main():
                 facecolor='none')
             ax.add_feature(cfeature.LAND)
             ax.add_feature(countries, edgecolor='black', linewidth=0.5)
+            ax.add_feature(cfeature.STATES.with_scale('50m'), linewidth=0.5)
 
         # Contour temperature at each lat/long
         cf = ax.contourf(lons, lats, values,
                          levels=[0, 1, 2, 3, 4, 5],
-                         extend='both',
                          transform=ccrs.PlateCarree(),
                          cmap='Greens')
 
         # Plot all the cities
-        if map_.map_type is not 'tropical' or map_.map_type is not 'country':
+        if map_.map_type is not 'tropical' and map_.map_type is not 'country':
             for city in map_.cities:
                 ax.plot(city.lon, city.lat, 'ro', zorder=9, markersize=1.90, transform=ccrs.Geodetic())
                 ax.text(city.lon - 0.5, city.lat + 0.09, city.city_name, fontsize='small', fontweight='bold',
@@ -99,9 +100,9 @@ def main():
         ax.add_artist(text)
 
         # Plot a colorbar to show temperature and reduce the size of it
-        plt.colorbar(cf, ax=ax, fraction=0.032)
-
-        plt.savefig('SPC_{}_Map.png'.format(str(data.validDate)))
+        cb = plt.colorbar(cf, ax=ax, fraction=0.056, orientation='horizontal', pad=0.04)
+        cb.ax.set_xlabel('1:MRGL         2:SLGT           3:ENH           4:MDT           5:HIGH')
+        plt.savefig('SPC_ProbabilisticOutlook_{}_Map.png'.format(str(data.validDate)))
 
 
 def get_valid_days(dataset_copy_1, dataset_copy_2):

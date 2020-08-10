@@ -19,7 +19,6 @@ def download_dataset():
 
 def main():
     download_dataset()
-    return
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--map', help='Which type of map to be generated.')

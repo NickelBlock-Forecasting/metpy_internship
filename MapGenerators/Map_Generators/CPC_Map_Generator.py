@@ -6,10 +6,8 @@ import cartopy.feature as cfeature
 import cartopy.io.shapereader as shpreader
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 import pygrib
-import numpy as np
 
 import Map_Info as map_info
 
@@ -23,20 +21,21 @@ def download_dataset():
 def main():
     download_dataset()
 
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('-m', '--map', help='Which type of map to be generated.')
-    # args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-m', '--map', help='Which type of map to be generated.')
+    args = parser.parse_args()
 
-    # if args.map == 'verywide':
-    #     map_ = map_info.VeryWide()
-    # elif args.map == 'regional':
-    #     map_ = map_info.Regional()
-    # elif args.map == 'local':
-    #     map_ = map_info.Local()
-    # elif args.map == 'country':
-    #     map_ = map_info.Country()
+    if args.map == 'verywide':
+        map_ = map_info.VeryWide()
+    elif args.map == 'regional':
+        map_ = map_info.Regional()
+    elif args.map == 'local':
+        map_ = map_info.Local()
+    elif args.map == 'tropical':
+        map_ == map_info.Tropical()
+    elif args.map == 'country':
+        map_ = map_info.Country()
 
-    map_ = map_info.Country()
     # Open dataset and capture relevant info
     file = '../output/CPC_data.grb2'
     dataset = pygrib.open(file)
@@ -60,8 +59,6 @@ def main():
         for value in values:
             lats, lons = value.latlons()
             vals = value.values
-
-            print('Lat: ', lats.shape, ' Lon: ', lons.shape, ' Values: ', vals.shape)
 
             # Add boundaries to plot
             ax.add_feature(cfeature.OCEAN, facecolor=cfeature.COLORS['water'])
@@ -91,6 +88,7 @@ def main():
                                      transform=ccrs.PlateCarree(),
                                      cmap='Blues',
                                      aplha=0.5)
+                    cb1 = plt.colorbar(cf, ax=ax, orientation='horizontal', fraction=0.056, pad=0.1)
                 elif key == 'Precipitations':
                     # Contour temperature at each lat/long
                     cf = ax.contourf(lons, lats, vals,
@@ -98,10 +96,8 @@ def main():
                                      transform=ccrs.PlateCarree(),
                                      cmap='Blues',
                                      aplha=0.5)
-                # Plot a colorbar to show temperature and reduce the size of it
-                cb1 = plt.colorbar(cf, ax=ax, orientation='horizontal', fraction=0.06, pad=0.04)
+                    cb1 = plt.colorbar(cf, ax=ax, orientation='horizontal', fraction=0.066, pad=0.04)
                 cb1.ax.set_xlabel('Probability of Below (%)')
-
             elif 'event above' in str(value):
                 if key == 'Temperatures':
                     # Contour temperature at each lat/long
@@ -110,6 +106,7 @@ def main():
                                      transform=ccrs.PlateCarree(),
                                      cmap='Reds',
                                      aplha=0.5)
+                    cb2 = plt.colorbar(cf, ax=ax, orientation='horizontal', fraction=0.0661, pad=0.04)
                 elif key == 'Precipitations':
                     # Contour temperature at each lat/long
                     cf = ax.contourf(lons, lats, vals,
@@ -117,11 +114,17 @@ def main():
                                      transform=ccrs.PlateCarree(),
                                      cmap='Greens',
                                      aplha=0.5)
-                # Plot a colorbar to show temperature and reduce the size of it
-                cb2 = plt.colorbar(cf, ax=ax, orientation='horizontal', fraction=0.051, pad=0.1)
+                    cb2 = plt.colorbar(cf, ax=ax, orientation='horizontal', fraction=0.056, pad=0.1)
                 cb2.ax.set_xlabel('Probability of Above (%)')
 
-            ax.set_title('{} Probability for '.format(key) + str(value.validDate) + ' UTC',
+            # Plot all the cities
+            if map_.map_type is not 'tropical' and map_.map_type is not 'country':
+                for city in map_.cities:
+                    ax.plot(city.lon, city.lat, 'ro', zorder=9, markersize=1.90, transform=ccrs.Geodetic())
+                    ax.text(city.lon - 0.5, city.lat + 0.09, city.city_name, fontsize='small', fontweight='bold',
+                            transform=ccrs.PlateCarree())
+            # Title
+            ax.set_title('{} Probability for {} UTC'.format(key, str(value.validDate)),
                          fontsize=12, loc='left')
 
             # Company copyright on the bottom right corner
@@ -129,11 +132,12 @@ def main():
             text = AnchoredText(r'$\mathcircled{{c}}$ {}'
                                 ''.format(SOURCE),
                                 loc=4, prop={'size': 9}, frameon=True)
-            data_model = AnchoredText('CPC Probability Outlook  model', loc=3, prop={'size': 9}, frameon=True)
+            data_model = AnchoredText('CPC Probability Outlook model', loc=3, prop={'size': 9}, frameon=True)
             ax.add_artist(data_model)
             ax.add_artist(text)
+            date = value.validDate
 
-        plt.show()
+        plt.savefig('CPC_{}_{}_Map.png'.format(key, date))
 
 
 def make_output_directory():
