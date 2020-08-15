@@ -34,8 +34,6 @@ def main():
         print("Invalid Map Type Requested.")
         return
 
-
-
     # Create maps for each time declared on command line
     for t in args.time:
         # Acquire the datasets from the GFS Global Catalog
