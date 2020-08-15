@@ -35,8 +35,6 @@ def main():
         print("Invalid Map Type Requested.")
         return
 
-
-
     for t in args.time:
         # Acquire the datasets from the GFS Global Catalog
         GFS_data = TDSCatalog('http://thredds.ucar.edu/thredds/catalog/grib/NCEP/GFS/'
