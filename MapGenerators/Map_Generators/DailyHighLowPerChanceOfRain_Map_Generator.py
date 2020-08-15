@@ -1,5 +1,5 @@
-import argparse
 import os
+import argparse
 
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
@@ -8,13 +8,8 @@ import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 import pygrib
 
-import Map_Info as map_info
-
-
-def download_dataset():
-    os.system('cd .. && cd DailyHighsLowsPerChanceOfRain_dataset_downloader && cd DailyHighsLowsPerChanceOfRain && cd spiders && scrapy '
-              'crawl DailyHighLowPerChanceOfRain')
-    return
+import Map_Utils as map_utils
+Utils = map_utils.Utils()
 
 
 def main():
@@ -25,49 +20,53 @@ def main():
     args = parser.parse_args()
 
     if args.map == 'verywide':
-        map_ = map_info.VeryWide()
+        map_ = map_utils.VeryWide()
     elif args.map == 'regional':
-        map_ = map_info.Regional()
+        map_ = map_utils.Regional()
     elif args.map == 'local':
-        map_ = map_info.Local()
+        map_ = map_utils.Local()
+    else:
+        print("Invalid Map Type Requested.")
+        return
 
-    # Open dataset and capture relevant info
+    # Open dataset
     file = '../output/DHLPCoR_data.grb2'
     data = pygrib.open(file)
 
-    max_temp = data.select(name='Maximum temperature')
-    min_temp = data.select(name='Minimum temperature')
-    per_chance_rain = data.select(name='Probability of 0.01 inch of precipitation (POP)')
+    # Grab the keys from the data we want
+    maximum_temperatures = data.select(name='Maximum temperature')
+    minimum_temperatures = data.select(name='Minimum temperature')
+    percent_chance_rain = data.select(name='Probability of 0.01 inch of precipitation (POP)')
 
     # loops Day by day (1-5)
     day = 1
-    for max_t, min_t, per_chance in zip(max_temp, min_temp,  per_chance_rain):
+    for max_temperatures, min_temperatures, percent_chance_rains in zip(maximum_temperatures, minimum_temperatures,  percent_chance_rain):
         # Max Temperature data
-        max_temp_data = []
-        max_temp_lats, max_temp_lons = max_t.latlons()
-        max_temp_values = max_t.values
-        for lat, lon, val in zip(max_temp_lats, max_temp_lons, max_temp_values):
-            for la, lo, va in zip(lat, lon, val):
-                max_temp_data.append({'lat': la, 'lon': lo, 'value': va})
+        max_temperature_data = []
+        max_temp_latitudes, max_temp_longitudes = max_temperatures.latlons()
+        max_temp_values = max_temperatures.values
+        for latitudes, longitudes, values in zip(max_temp_latitudes, max_temp_longitudes, max_temp_values):
+            for lat, lon, value in zip(latitudes, longitudes, values):
+                max_temperature_data.append({'lat': lat, 'lon': lon, 'value': value})
 
         # Min Temperature data
-        min_temp_data = []
-        min_temp_lats, min_temp_lons = min_t.latlons()
-        min_temp_values = min_t.values
-        for lat, lon, val in zip(min_temp_lats, min_temp_lons, min_temp_values):
-            for la, lo, va in zip(lat, lon, val):
-                min_temp_data.append({'lat': la, 'lon': lo, 'value': va})
+        min_temperature_data = []
+        min_temp_lats, min_temp_lons = min_temperatures.latlons()
+        min_temp_values = min_temperatures.values
+        for latitudes, longitudes, values in zip(min_temp_lats, min_temp_lons, min_temp_values):
+            for lat, lon, value in zip(latitudes, longitudes, values):
+                min_temperature_data.append({'lat': lat, 'lon': lon, 'value': value})
 
         # Percent chance of rain data
         percent_chance_rain_data = []
-        per_chance_rain_lats, per_chance_rain_lons = per_chance.latlons()
-        per_chance_rain_values = per_chance.values
-        for lat, lon, val in zip(per_chance_rain_lats, per_chance_rain_lons, per_chance_rain_values):
-            for la, lo, va in zip(lat, lon, val):
-                percent_chance_rain_data.append({'lat': la, 'lon': lo, 'value': va})
+        per_chance_rain_lats, per_chance_rain_lons = percent_chance_rains.latlons()
+        per_chance_rain_values = percent_chance_rains.values
+        for latitudes, longitudes, values in zip(per_chance_rain_lats, per_chance_rain_lons, per_chance_rain_values):
+            for lat, lon, value in zip(latitudes, longitudes, values):
+                percent_chance_rain_data.append({'lat': lat, 'lon': lon, 'value': value})
 
         # Create the figure for graphing
-        fig = plt.figure(figsize=(10, 7))
+        fig = plt.figure(figsize=(15, 9))
         ax = fig.add_subplot(1, 1, 1, projection=ccrs.Mercator())
         ax.set_extent(map_.NorthSouthEastWest[::-1], crs=ccrs.Geodetic())
 
@@ -91,56 +90,80 @@ def main():
             ax.add_feature(countries, edgecolor='black', linewidth=0.5)
 
         # Set the additional info on the map
-        ax.set_title('Daily High / Low / Percent Chance of Rain taken ' + str(max_t.validDate)[:-9] + ' UTC',
+        ax.set_title('Daily High / Low / Percent Chance of Rain taken ' + str(max_temperatures.validDate)[:-9] + ' UTC',
                      fontsize=12, loc='left')
-        SOURCE = 'NickelBlock Forecasting'
-        text = AnchoredText(r'$\mathcircled{{c}}$ {}'
-                            ''.format(SOURCE),
+        text = AnchoredText(r'$\mathcircled{{c}}$ NickelBlock Forecasting',
                             loc=4, prop={'size': 9}, frameon=True)
+        ax.add_artist(text)
+
+        # Data Model
         data_model = AnchoredText('NWS/NDFD CONUS model', loc=3, prop={'size': 9}, frameon=True)
         ax.add_artist(data_model)
-        ax.add_artist(text)
+
+        # Add logo
+        logo = Utils.get_logo()
+        if map_.map_type == 'verywide':
+            ax.figure.figimage(logo, 1140, 137, zorder=1)
+        elif map_.map_type == 'regional':
+            ax.figure.figimage(logo, 1000, 137, zorder=1)
+        elif map_.map_type == 'local':
+            ax.figure.figimage(logo, 973, 137, zorder=1)
+        else:
+            ax.figure.figimage(logo, 1140, 181, zorder=1)
 
         # Plot the cities' information
         if map_.map_type is not 'tropical':
             for city in map_.cities:
-                for max, min, per_chance_rain in zip(max_temp_data, min_temp_data, percent_chance_rain_data):
-                    if round(city.lat, 1) == round(max['lat'], 1) and round(city.lon, 1) == round(max['lon'], 1):
+                for max_temp, min_temp, per_chance_rain in zip(max_temperature_data, min_temperature_data, percent_chance_rain_data):
+                    if round(city.lat, 1) == round(max_temp['lat'], 1) and round(city.lon, 1) == round(max_temp['lon'], 1):
                         ax.plot(city.lon, city.lat, 'ro', zorder=9, markersize=1.90, transform=ccrs.Geodetic())
       
                         # City Name
                         if city.city_name == 'Pensacola' and map_.map_type == 'verywide':
-                            ax.text(city.lon - 0.20, city.lat + 0.07, city.city_name, fontsize='small',
+                            ax.text(city.lon - 0.13, city.lat + 0.045, city.city_name, fontsize='small',
+                                    fontweight='bold',
+                                    transform=ccrs.PlateCarree())
+                        elif map_.map_type == 'local':
+                            ax.text(city.lon - 0.2, city.lat + 0.04, city.city_name, fontsize='small',
                                     fontweight='bold',
                                     transform=ccrs.PlateCarree())
                         else:
-                            ax.text(city.lon - 0.55, city.lat + 0.07, city.city_name, fontsize='small', fontweight='bold',
+                            ax.text(city.lon - 0.45, city.lat + 0.07, city.city_name, fontsize='small', fontweight='bold',
                                     transform=ccrs.PlateCarree())
 
                         # City Min/Max Temperature
-                        text = str(int(round(min['value'] * 1.8 - 459.67))) + ' / ' + str(int(round(max['value'] * 1.8 - 459.67)))
-                        ax.text(city.lon - 0.4, city.lat - 0.24, text, fontsize='small',
-                                fontweight='bold',
-                                transform=ccrs.PlateCarree())
+                        text = str(int(round(min_temp['value'] * 1.8 - 459.67))) + ' / ' + str(int(round(max_temp['value'] * 1.8 - 459.67)))
+                        if map_.map_type == 'local':
+                            ax.text(city.lon - 0.17, city.lat - 0.1, text, fontsize='small',
+                                    fontweight='bold',
+                                    transform=ccrs.PlateCarree())
+                        else:
+                            ax.text(city.lon - 0.34, city.lat - 0.175, text, fontsize='small',
+                                    fontweight='bold',
+                                    transform=ccrs.PlateCarree())
 
                         # City Percent Chance of Rain
                         text = str(int(round(per_chance_rain['value']))) + '%'
-                        ax.text(city.lon - 0.2, city.lat - 0.47, text, fontsize='small',
-                                fontweight='bold',
-                                transform=ccrs.PlateCarree())
+                        if map_.map_type == 'local':
+                            ax.text(city.lon - 0.07, city.lat - 0.18, text, fontsize='small',
+                                    fontweight='bold',
+                                    transform=ccrs.PlateCarree())
+                        else:
+                            ax.text(city.lon - 0.2, city.lat - 0.36, text, fontsize='small',
+                                    fontweight='bold',
+                                    transform=ccrs.PlateCarree())
                         break
 
         plt.savefig('Day_{}_{}_DailyHighLowPerChanceRain.png'.format(day, map_.map_type))
         day += 1
 
 
-def make_output_directory():
-    if not os.path.exists('output'):
-        os.mkdir('output')
-    os.chdir('output')
+def download_dataset():
+    os.system('cd .. && cd DailyHighsLowsPerChanceOfRain_dataset_downloader && cd DailyHighsLowsPerChanceOfRain && cd spiders && scrapy '
+              'crawl DailyHighLowPerChanceOfRain')
+    return
 
 
 if __name__ == '__main__':
-    make_output_directory()
+    Utils.create_output_directory()
     main()
-

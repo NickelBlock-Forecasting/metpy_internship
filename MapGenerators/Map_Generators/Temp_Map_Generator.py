@@ -1,22 +1,17 @@
-from datetime import datetime, timedelta
-import argparse
 import os
-
-from siphon.catalog import TDSCatalog
+import argparse
+from datetime import datetime, timedelta
 
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import cartopy.io.shapereader as shpreader
 import matplotlib.pyplot as plt
-import matplotlib.image as img
 from matplotlib.offsetbox import AnchoredText
+from siphon.catalog import TDSCatalog
 import numpy as np
 
-import Map_Info as map_info
-
-
-def round_temps(x):
-    return round(x * 4) / 4
+import Map_Utils as map_utils
+Utils = map_utils.Utils()
 
 
 def main():
@@ -28,96 +23,75 @@ def main():
     args = parser.parse_args()
 
     if args.map == 'verywide':
-        temp_map = map_info.VeryWide()
+        map_ = map_utils.VeryWide()
     elif args.map == 'regional':
-        temp_map = map_info.Regional()
+        map_ = map_utils.Regional()
     elif args.map == 'local':
-        temp_map = map_info.Local()
+        map_ = map_utils.Local()
     elif args.map == 'tropical':
-        temp_map = map_info.Tropical()
+        map_ = map_utils.Tropical()
+    else:
+        print("Invalid Map Type Requested.")
+        return
 
+
+
+    # Create maps for each time declared on command line
     for t in args.time:
-        # Next,  we construct a `TDSCatalog` instance pointing to our dataset of interest, in
-        # this case TDS' "Best" virtual dataset for the GFS global 0.25 degree collection of
-        # GRIB files. This will give us a good resolution for our map. This catalog contains a
-        # single dataset.
-        best_gfs = TDSCatalog('http://thredds.ucar.edu/thredds/catalog/grib/NCEP/GFS/'
+        # Acquire the datasets from the GFS Global Catalog
+        GFS_data = TDSCatalog('http://thredds.ucar.edu/thredds/catalog/grib/NCEP/GFS/'
                               'Global_0p25deg/catalog.xml?dataset=grib/NCEP/GFS/Global_0p25deg/Best')
 
-        # We pull out this dataset and get the NCSS access point
-        best_ds = best_gfs.datasets[0]
-        ncss = best_ds.subset()
+        # Pull out our dataset and get the NCSS access point used to query data from the dataset
+        dataset = GFS_data.datasets[0]
+        ncss = dataset.subset()
 
-        # We can then use the `ncss` object to create a new query object, which
-        # facilitates asking for data from the server.
+        # Use the `ncss` object to create a new query object
         query = ncss.query()
         time = (datetime.utcnow() + timedelta(hours=t))  # Time of data requested
         query.time(time)
         query.accept('netcdf4')
         query.variables('Temperature_surface')
 
-        # We construct a query asking for data corresponding to a latitude and longitude box where 43
-        # lat is the northern extent, 35 lat is the southern extent, -111 long is the western extent
-        # and -100 is the eastern extent. We request the data for the current time.
-        #
-        # We also ask for NetCDF version 4 data, for the variable 'temperature_surface'. This request
-        # will return all surface temperatures for points in our bounding box for a single time,
-        # nearest to that requested. Note the string representation of the query is a properly encoded
-        # query string.
-        #
-        # Translate Set Extent
-        if temp_map.map_type is not 'tropical':
-            query.lonlat_box(north=temp_map.NorthSouthEastWest[0], south=temp_map.NorthSouthEastWest[1],
-                            east=temp_map.NorthSouthEastWest[2], west=temp_map.NorthSouthEastWest[3])
+        # Set the lat lon box for which specific area of the dataset to query
+        if map_.map_type is not 'tropical':
+            query.lonlat_box(north=map_.NorthSouthEastWest[0], south=map_.NorthSouthEastWest[1],
+                             east=map_.NorthSouthEastWest[2], west=map_.NorthSouthEastWest[3])
         else:
-            query.lonlat_box(north=temp_map.NorthSouthEastWest[0] + 10, south=temp_map.NorthSouthEastWest[1],
-                             east=temp_map.NorthSouthEastWest[2], west=temp_map.NorthSouthEastWest[3])
+            query.lonlat_box(north=map_.NorthSouthEastWest[0] + 10, south=map_.NorthSouthEastWest[1],
+                             east=map_.NorthSouthEastWest[2], west=map_.NorthSouthEastWest[3])
 
-        # We now request data from the server using this query. The `NCSS` class handles parsing
-        # this NetCDF data (using the `netCDF4` module). If we print out the variable names, we see
-        # our requested variable, as well as the coordinate variables (needed to properly reference
-        # the data).
         data = ncss.get_data(query)
 
-        # We'll pull out the useful variables for temperature, latitude, and longitude, and time
-        # (which is the time, in hours since the forecast run).
-        temp_var = data.variables['Temperature_surface']
+        # Grab the keys from the data we want
+        temperatures = data.variables['Temperature_surface']
+        latitudes = data.variables['lat']
+        longitudes = data.variables['lon']
 
-        # Time variables can be renamed in GRIB collections. Best to just pull it out of the
-        # coordinates attribute on temperature
-        time_name = temp_var.coordinates.split()[1]
-        time_var = data.variables[time_name]
-        lat_var = data.variables['lat']
-        lon_var = data.variables['lon']
-
-        # Now we make our data suitable for plotting.
-        # Get the actual data values and remove any size 1 dimensions
-        temp_vals = temp_var[:].squeeze()
-        lat_vals = lat_var[:].squeeze()
-        lon_vals = lon_var[:].squeeze()
+        # Remove 1d arrays from data for plotting
+        temperatures = temperatures[:].squeeze()
+        latitudes = latitudes[:].squeeze()
+        longitudes = longitudes[:].squeeze()
 
         # Convert temps to Fahrenheit from Kelvin
-        temp_vals = temp_vals * 1.8 - 459.67
+        temperatures = convert_temperature_to_fahrenheit(temperatures)
 
         # Combine 1D latitude and longitudes into a 2D grid of locations
-        lon_2d, lat_2d = np.meshgrid(lon_vals, lat_vals)
+        lon_2d, lat_2d = np.meshgrid(longitudes, latitudes)
 
-        # Now we can plot these up using matplotlib and cartopy.
-        # Create the figure and set the frame
-        fig = plt.figure(figsize=(10, 7))
+        # Create figure for plotting
+        fig = plt.figure(figsize=(15, 9))
         ax = fig.add_subplot(1, 1, 1, projection=ccrs.Mercator())
-        ax.set_extent(temp_map.NorthSouthEastWest[::-1], crs=ccrs.Geodetic())
+        ax.set_extent(map_.NorthSouthEastWest[::-1], crs=ccrs.Geodetic())
 
-        # Add state boundaries to plot
-        if temp_map.map_type == 'verywide':
-            ax.add_feature(cfeature.STATES.with_scale('50m'), linewidth=0.5)
-        elif temp_map.map_type == 'regional' or temp_map.map_type == 'local':
-            ax.add_feature(cfeature.STATES.with_scale('50m'), linewidth=0.5)
+        # Add map features depending on map type
+        ax.add_feature(cfeature.STATES.with_scale('50m'), linewidth=0.5)
+        if map_.map_type == 'regional' or map_.map_type == 'local':
             reader = shpreader.Reader('../county_data/countyl010g.shp')
             counties = list(reader.geometries())
             COUNTIES = cfeature.ShapelyFeature(counties, ccrs.PlateCarree())
             ax.add_feature(COUNTIES, facecolor='none', edgecolor='black', linewidth=0.3)
-        elif temp_map.map_type == 'tropical':
+        elif map_.map_type == 'tropical':
             countries = cfeature.NaturalEarthFeature(
                 category='cultural',
                 name='admin_0_countries',
@@ -126,56 +100,61 @@ def main():
             ax.add_feature(cfeature.LAND)
             ax.add_feature(countries, edgecolor='black', linewidth=0.5)
 
-        # Contour temperature at each lat/long
-        cf = ax.contourf(lon_2d, lat_2d, temp_vals, 50, extend='both', transform=ccrs.PlateCarree(),
+        # Contour temperature value at each lat/lon
+        cf = ax.contourf(lon_2d, lat_2d, temperatures, 40, extend='both', transform=ccrs.PlateCarree(),
                          cmap='coolwarm')
 
-        # Plot a colorbar to show temperature and reduce the size of it
-        plt.colorbar(cf, ax=ax, fraction=0.032)
+        # Plot a colorbar to show temperature values
+        colorbar = plt.colorbar(cf, ax=ax, fraction=0.032)
+        colorbar.set_label('Temperature (\u00b0F)')
 
         # Plot all the cities
-        if temp_map.map_type is not 'tropical':
-            for city in temp_map.cities:
-                for lat in range(len(lat_vals)):
-                    for lon in range(len(lon_vals)):
-                        if round_temps(city.lat) == lat_vals[lat] and round_temps(city.lon) == (lon_vals[lon] - 360):
-                            ax.text(city.lon + 0.09, city.lat - 0.2, int(round(temp_vals[lat][lon])), fontsize='10',
+        if map_.map_type is not 'tropical':
+            for city in map_.cities:
+                for lat in range(len(latitudes)):
+                    for lon in range(len(longitudes)):
+                        if round_temps(city.lat) == latitudes[lat] and round_temps(city.lon) == (longitudes[lon] - 360):
+                            cityTemp_latlon = Utils.plot_latlon_cityTemp_by_maptype(lat=city.lat, lon=city.lon, map_type=map_.map_type)
+                            ax.text(cityTemp_latlon[1], cityTemp_latlon[0], int(round(temperatures[lat][lon])),
+                                    fontsize='10',
                                     fontweight='bold',
                                     transform=ccrs.PlateCarree())
                 ax.plot(city.lon, city.lat, 'ro', zorder=9, markersize=2.00, transform=ccrs.Geodetic())
+                cityName_latlon = Utils.plot_latlon_cityName_by_maptype(lat=city.lat, lon=city.lon, map_type=map_.map_type)
+                ax.text(cityName_latlon[1], cityName_latlon[0], city.city_name, fontsize='small', fontweight='bold',
+                        transform=ccrs.PlateCarree())
 
-                if city.city_name == 'Pensacola' and temp_map.map_type == 'verywide':
-                    ax.text(city.lon - 0.20, city.lat + 0.07, city.city_name, fontsize='small',
-                            fontweight='bold',
-                            transform=ccrs.PlateCarree())
-                else:
-                    ax.text(city.lon - 0.5, city.lat + 0.09, city.city_name, fontsize='small', fontweight='bold',
-                            transform=ccrs.PlateCarree())
-
-        # Make a title with the time value
-        time = str(time)[:-7]
-        ax.set_title('Temperature forecast (\u00b0F) for ' + time + ' UTC',
+        # Create a title with the time value
+        ax.set_title('Temperature forecast (\u00b0F) for {} UTC'.format(str(time)[:-7]),
                      fontsize=12, loc='left')
 
-        # Company copyright on the bottom right corner
-        SOURCE = 'NickelBlock Forecasting'
-        text = AnchoredText(r'$\mathcircled{{c}}$ {}'
-                            ''.format(SOURCE),
+        # Company copyright
+        text = AnchoredText(r'$\mathcircled{{c}}$ NickelBlock Forecasting',
                             loc=4, prop={'size': 9}, frameon=True)
-        data_model = AnchoredText('GFS 12z model', loc=3, prop={'size': 9}, frameon=True)
-        ax.add_artist(data_model)
         ax.add_artist(text)
 
-        plt.savefig('{}_Temperature_Hour_{}.png'.format(temp_map.map_type, t))
+        # Data model
+        data_model = AnchoredText('GFS 12z model', loc=3, prop={'size': 9}, frameon=True)
+        ax.add_artist(data_model)
+
+        # Add logo
+        logo = Utils.get_logo()
+        if map_.map_type is not 'tropical':
+            ax.figure.figimage(logo, 1105, 137, zorder=1)
+        else:
+            ax.figure.figimage(logo, 1105, 181, zorder=1)
+
+        plt.savefig('{}_Temperature_Hour_{}.png'.format(map_.map_type, t))
 
 
+def convert_temperature_to_fahrenheit(kelvin_temperature):
+    return kelvin_temperature * 1.8 - 459.67
 
-def make_output_directory():
-    if not os.path.exists('output'):
-        os.mkdir('output')
-    os.chdir('output')
+
+def round_temps(x):
+    return round(x * 4) / 4
 
 
 if __name__ == '__main__':
-    make_output_directory()
+    Utils.create_output_directory()
     main()

@@ -22,7 +22,7 @@ class Local:
         map_info = MapInfo()
         self.map_type = 'local'
         self.cities = map_info.local_cities()
-        self.NorthSouthEastWest = [33.5, 29.5, -86.5, -91.5]
+        self.NorthSouthEastWest = [33.5, 29.3, -86.5, -91.5]
 
 
 class Tropical:
@@ -164,3 +164,49 @@ class City:
         self.lat = lat
         self.lon = lon
         self.temp = temp
+
+
+"""
+    Utilities for Map Drawing and Functionality
+"""
+class Utils:
+    @staticmethod
+    def create_output_directory():
+        import os
+        if not os.path.exists('output'):
+            os.mkdir('output')
+        os.chdir('output')
+
+    @staticmethod
+    def get_logo():
+        import cv2
+        logo = cv2.imread('../assets/logo.png', cv2.IMREAD_UNCHANGED)
+        logo = cv2.cvtColor(logo, cv2.COLOR_BGR2RGB)
+        resized_logo = cv2.resize(logo, (117, 109), interpolation=cv2.INTER_AREA)
+        return resized_logo
+
+    @staticmethod
+    def plot_latlon_cityName_by_maptype(lat, lon, map_type):
+        if map_type == 'verywide':
+            lat += 0.09
+            lon -= 0.35
+        elif map_type == 'local':
+            lat += 0.04
+            lon -= 0.22
+        elif map_type == 'regional':
+            lat += 0.05
+            lon -= 0.3
+        return [lat, lon]
+
+    @staticmethod
+    def plot_latlon_cityTemp_by_maptype(lat, lon, map_type):
+        if map_type == 'verywide':
+            lat -= 0.17
+            lon += 0.09
+        elif map_type == 'regional':
+            lat -= 0.15
+            lon += 0.04
+        elif map_type == 'local':
+            lat -= 0.09
+            lon += 0.01
+        return [lat, lon]

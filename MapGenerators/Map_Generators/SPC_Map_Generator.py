@@ -1,5 +1,5 @@
-import argparse
 import os
+import argparse
 
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 import pygrib
 
-import Map_Info as map_info
+import Map_Utils as map_utils
+Utils = map_utils.Utils()
 
 
 def download_dataset():
@@ -25,15 +26,18 @@ def main():
     args = parser.parse_args()
 
     if args.map == 'verywide':
-        map_ = map_info.VeryWide()
+        map_ = map_utils.VeryWide()
     elif args.map == 'regional':
-        map_ = map_info.Regional()
+        map_ = map_utils.Regional()
     elif args.map == 'local':
-        map_ = map_info.Local()
+        map_ = map_utils.Local()
     elif args.map == 'tropical':
-        map_ = map_info.Tropical()
+        map_ = map_utils.Tropical()
     elif args.map == 'country':
-        map_ = map_info.Country()
+        map_ = map_utils.Country()
+    else:
+        print("Invalid Map Type Requested.")
+        return
 
     # Open dataset and capture relevant info
     file = '../output/SPC_data.grb2'
@@ -48,7 +52,7 @@ def main():
         values = data.values
 
         # Create the figure for graphing
-        fig = plt.figure(figsize=(10, 7))
+        fig = plt.figure(figsize=(15, 9))
         ax = fig.add_subplot(1, 1, 1, projection=ccrs.Mercator())
         ax.set_extent(map_.NorthSouthEastWest[::-1], crs=ccrs.Geodetic())
 
@@ -86,23 +90,35 @@ def main():
                         transform=ccrs.PlateCarree())
 
         # Make a title with the time value
-        time = str(data.validDate)
-        ax.set_title('SPC Categorical Outlook for ' + time + ' UTC',
+        ax.set_title('SPC Categorical Outlook for {} UTC'.format(str(data.validDate)),
                      fontsize=12, loc='left')
 
         # Company copyright on the bottom right corner
-        SOURCE = 'NickelBlock Forecasting'
-        text = AnchoredText(r'$\mathcircled{{c}}$ {}'
-                            ''.format(SOURCE),
+        text = AnchoredText(r'$\mathcircled{{c}}$ NickelBlock Forecasting',
                             loc=4, prop={'size': 9}, frameon=True)
+        ax.add_artist(text)
+
+        # Data Model
         data_model = AnchoredText('SPC Probabilistic to Categorical Outlook model', loc=3, prop={'size': 9}, frameon=True)
         ax.add_artist(data_model)
-        ax.add_artist(text)
+
+        # Add logo
+        logo = Utils.get_logo()
+        if map_.map_type == 'verywide':
+            ax.figure.figimage(logo, 1090, 205, zorder=1)
+        elif map_.map_type == 'regional':
+            ax.figure.figimage(logo, 960, 205, zorder=1)
+        elif map_.map_type == 'local':
+            ax.figure.figimage(logo, 937, 205, zorder=1)
+        elif map_.map_type == 'tropical':
+            ax.figure.figimage(logo, 1170, 205, zorder=1)
+        elif map_.map_type == 'country':
+            ax.figure.figimage(logo, 1124, 205, zorder=1)
 
         # Plot a colorbar to show temperature and reduce the size of it
         cb = plt.colorbar(cf, ax=ax, fraction=0.056, orientation='horizontal', pad=0.04)
-        cb.ax.set_xlabel('1:MRGL         2:SLGT           3:ENH           4:MDT           5:HIGH')
-        plt.savefig('SPC_ProbabilisticOutlook_{}_Map.png'.format(str(data.validDate)))
+        cb.ax.set_xlabel('(  1:MRGL,  2:SLGT,  3:ENH,  4:MDT,  5:HIGH  )')
+        plt.savefig('SPC_{}_{}_Map.png'.format(map_.map_type, str(data.validDate)))
 
 
 def get_valid_days(dataset_copy_1, dataset_copy_2):
@@ -125,12 +141,6 @@ def get_valid_days(dataset_copy_1, dataset_copy_2):
     return final_days
 
 
-def make_output_directory():
-    if not os.path.exists('output'):
-        os.mkdir('output')
-    os.chdir('output')
-
-
 if __name__ == '__main__':
-    make_output_directory()
+    Utils.create_output_directory()
     main()
