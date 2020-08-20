@@ -76,3 +76,12 @@ Example that generates country CPC maps:
 ```
 python CPC_Map_Generator.py -m country
 ```
+
+Map Examples
+==
+
+![Screen Shot 2020-08-19 at 8 02 00 PM](https://user-images.githubusercontent.com/45768739/90709100-0ca3fc00-e261-11ea-8136-96167cdc99e4.png)
+
+![Screen Shot 2020-08-19 at 8 03 28 PM](https://user-images.githubusercontent.com/45768739/90709131-204f6280-e261-11ea-8df3-b64c8316e455.png)
+
+![Screen Shot 2020-08-19 at 9 14 07 PM](https://user-images.githubusercontent.com/45768739/90709167-378e5000-e261-11ea-8976-fa9e68d13ca3.png)
