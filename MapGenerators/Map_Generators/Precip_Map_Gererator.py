@@ -63,8 +63,8 @@ def main():
 
         # Grab the keys from the data we want
         precipitations = data.variables['Precipitation_rate_surface']
-        latitudes = data.variables['lat']
-        longitudes = data.variables['lon']
+        latitudes = data.variables['latitude']
+        longitudes = data.variables['longitude']
 
         # Remove 1d arrays from data for plotting
         precipitations = precipitations[:].squeeze()
@@ -138,7 +138,7 @@ def main():
                      fontsize=12, loc='left')
 
         # Company copyright
-        text = AnchoredText(r'$\mathcircled{{c}}$ NickelBlock Forecasting',
+        text = AnchoredText('© NickelBlock Forecasting',
                             loc=4, prop={'size': 9}, frameon=True)
         ax.add_artist(text)
 

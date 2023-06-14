@@ -94,7 +94,7 @@ def main():
                      fontsize=12, loc='left')
 
         # Company copyright on the bottom right corner
-        text = AnchoredText(r'$\mathcircled{{c}}$ NickelBlock Forecasting',
+        text = AnchoredText('© NickelBlock Forecasting',
                             loc=4, prop={'size': 9}, frameon=True)
         ax.add_artist(text)
 

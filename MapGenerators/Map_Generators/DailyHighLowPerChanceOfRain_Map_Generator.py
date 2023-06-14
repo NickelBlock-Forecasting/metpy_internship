@@ -92,7 +92,7 @@ def main():
         # Set the additional info on the map
         ax.set_title('Daily High / Low / Percent Chance of Rain taken ' + str(max_temperatures.validDate)[:-9] + ' UTC',
                      fontsize=12, loc='left')
-        text = AnchoredText(r'$\mathcircled{{c}}$ NickelBlock Forecasting',
+        text = AnchoredText('© NickelBlock Forecasting',
                             loc=4, prop={'size': 9}, frameon=True)
         ax.add_artist(text)
 
