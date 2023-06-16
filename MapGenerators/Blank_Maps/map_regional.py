@@ -105,9 +105,7 @@ def main():
                 transform=ccrs.PlateCarree())
 
     # Company copyright on the bottom right corner
-    SOURCE = 'NickelBlock Forecasting'
-    text = AnchoredText(r'$\mathcircled{{c}}$ {}'
-                        ''.format(SOURCE),
+    text = AnchoredText('© NickelBlock Forecasting',
                         loc=4, prop={'size': 9}, frameon=True)
     ax.add_artist(text)
 
