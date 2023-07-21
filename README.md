@@ -9,7 +9,7 @@ Please install Python 3.10 or 3.11 locally
 Download and install Conda https://www.anaconda.com/download/
 
 Use Conda to install required packages
-catopy - `conda install -c conda-forge cartopy`
+cartopy - `conda install -c conda-forge cartopy`
 siphon - `conda install -c conda-forge siphon`
 netCDF4 - `conda install netCDF4`
 opencv - `conda install -c conda-forge opencv`
@@ -74,7 +74,6 @@ Example that generates country SPC maps:
 ```
 python SPC_Map_Generator.py -m country
 ```
-
 ## CPC Probabilistic Outlook
 
 To generate CPC maps, navigate to the 'MapGenerators' folder, and use the following command:
